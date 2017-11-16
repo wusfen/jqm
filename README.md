@@ -1,4 +1,13 @@
-# jqm
-jquery 的轻量实现
+# $.js
+jquery 的超轻量实现
 
-未完成
+ * $('selector')
+ *     .each()
+ *     .closest()
+ *     .delay()
+ *     .addClass()
+ *     .removeClass()
+ *     .show(animateClass)
+ *     .hide(animateClass)
+ *     .css()
+ *     .on()
