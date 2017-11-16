@@ -33,6 +33,13 @@ $ = function(selector) {
 }
 $.fn = $.prototype = []
 
+$.fn.delay = function(time) {
+    if (String(time).match('s')) {
+        time = parseFloat(time) * 1000
+    }
+    this.delayTime = time + (this.delayTime || 0)
+    return this
+}
 $.fn.each = function(cb) {
     var deal = function() {
         for (var i = 0; i < this.length; i++) {
@@ -137,12 +144,5 @@ $.fn.on = function(eventType, cb) {
             cb.call(el, e)
         }
     })
-    return this
-}
-$.fn.delay = function(time) {
-    if (String(time).match('s')) {
-        time = parseFloat(time) * 1000
-    }
-    this.delayTime = time + (this.delayTime || 0)
     return this
 }
