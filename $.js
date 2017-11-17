@@ -49,7 +49,7 @@ $.fn.each = function(cb) {
     var _this = this
     var deal = function() {
         for (var i = 0; i < _this.length; i++) {
-            cb.call(_this, _this[i], i, _this)
+            cb.call(_this[i], i, _this[i])
         }
         delete _this.delayTime
     }
@@ -62,7 +62,7 @@ $.fn.each = function(cb) {
 $.fn.closest = function(selector) {
     var _els = $(selector)
     var els = new $
-    this.each(function(item) {
+    this.each(function() {
         (function loop(node) {
             if (!node) return
             if (_els.indexOf(node) != -1) {
@@ -70,14 +70,14 @@ $.fn.closest = function(selector) {
             } else {
                 loop(node.parentNode)
             }
-        })(item)
+        })(this)
     })
     return els
 }
 $.fn.find = function(selector) {
     var _els = $(selector)
     var els = new $
-    this.each(function(item) {
+    this.each(function() {
         (function loop(node) {
             var childNodes = node.childNodes
             for (var i = 0; i < childNodes.length; i++) {
@@ -87,14 +87,14 @@ $.fn.find = function(selector) {
                 }
                 loop(node)
             }
-        })(item)
+        })(this)
     })
     return els
 }
 $.fn.addClass = function(className) {
     var classNames = className.trim().split(/ +/)
-    return this.each(function(item) {
-        var classList = item.classList
+    return this.each(function() {
+        var classList = this.classList
         for (var i = 0; i < classNames.length; i++) {
             classList && classList.add(classNames[i])
         }
@@ -102,8 +102,8 @@ $.fn.addClass = function(className) {
 }
 $.fn.removeClass = function(className) {
     var classNames = className.trim().split(/ +/)
-    return this.each(function(item) {
-        var classList = item.classList
+    return this.each(function() {
+        var classList = this.classList
         for (var i = 0; i < classNames.length; i++) {
             classList && classList.remove(classNames[i])
         }
@@ -120,8 +120,8 @@ $.fn.css = function(arg, val) {
 
     // set
     if (typeof arg == 'object') {
-        return this.each(function(item) {
-            var style = item.style
+        return this.each(function() {
+            var style = this.style
             for (var name in arg) {
                 style['-webkit-' + name] = arg[name]
                 style['-moz-' + name] = arg[name]
@@ -146,13 +146,18 @@ $.fn.css = function(arg, val) {
 
 }
 $.fn.show = function(className) {
+    this.each(function() {
+        $(this).css('display', '')
+        if ($(this).css('display') == 'none') {
+            $(this).css('display', 'block')
+        }
+    })
     if (className) {
-        return this.addClass(className)
-            .css('display', '')
+        this.addClass(className)
             .delay(this.css('animation-duration'))
             .removeClass(className)
     }
-    return this.css('display', '')
+    return this
 }
 $.fn.hide = function(className) {
     if (className) {
