@@ -1,18 +1,23 @@
 /**
+ * https://github.com/wusfen/q.js
  * wushufen
  * 20171115
- * 20171116
- *
- * $('selector')
- *     .each()
- *     .closest()
- *     .delay()
- *     .addClass()
- *     .removeClass()
- *     .show(animateClass)
- *     .hide(animateClass)
- *     .css()
- *     .on()
+ * 20171117
+ */
+/**
+
+$('selector')
+    .each()
+    .closest()
+    .find()
+    .delay()
+    .addClass()
+    .removeClass()
+    .show(animateClass) // 可使用css3动画，比如使用 animate.css: .show('animated fadeIn')
+    .hide(animateClass)
+    .css()
+    .on() // 使用代理实现，新添加的元素也能处理事件
+
  */
 $ = function(selector) {
     if (!(this instanceof $)) {
@@ -41,12 +46,13 @@ $.fn.delay = function(time) {
     return this
 }
 $.fn.each = function(cb) {
+    var _this = this
     var deal = function() {
-        for (var i = 0; i < this.length; i++) {
-            cb.call(this, this[i], i)
+        for (var i = 0; i < _this.length; i++) {
+            cb.call(_this, _this[i], i, _this)
         }
-        delete this.delayTime
-    }.bind(this)
+        delete _this.delayTime
+    }
 
     var delayTime = this.delayTime
     delayTime ? setTimeout(deal, delayTime) : deal()
@@ -63,6 +69,23 @@ $.fn.closest = function(selector) {
                 els.push(node)
             } else {
                 loop(node.parentNode)
+            }
+        })(item)
+    })
+    return els
+}
+$.fn.find = function(selector) {
+    var _els = $(selector)
+    var els = new $
+    this.each(function(item) {
+        (function loop(node) {
+            var childNodes = node.childNodes
+            for (var i = 0; i < childNodes.length; i++) {
+                var node = childNodes[i]
+                if (_els.indexOf(node) != -1) {
+                    els.push(node)
+                }
+                loop(node)
             }
         })(item)
     })
@@ -103,6 +126,7 @@ $.fn.css = function(arg, val) {
                 style['-webkit-' + name] = arg[name]
                 style['-moz-' + name] = arg[name]
                 style['-ms-' + name] = arg[name]
+                style['-0-' + name] = arg[name]
                 style[name] = arg[name]
             }
         })
@@ -110,10 +134,12 @@ $.fn.css = function(arg, val) {
     // get
     else {
         var style = getComputedStyle(item, null)
-        var value = style[arg] ||
+        var value =
             style['-webkit-' + arg] ||
             style['-moz-' + arg] ||
-            style['-ms-' + arg]
+            style['-ms-' + arg] ||
+            style['-o-' + arg] ||
+            style[arg]
 
         return arg ? value : style
     }
