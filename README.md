@@ -1,5 +1,5 @@
 # $.js
-jquery 的超轻量实现
+jquery 的超轻量实现 (ie8+)
 
 ```javascript
 
