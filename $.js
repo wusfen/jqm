@@ -1,25 +1,25 @@
-/**
- * https://github.com/wusfen/q.js
- * wushufen
- * 20171115
- * 20171117
- */
-/**
+/*! @preserve https://github.com/wusfen/q.js */
+/*
 
 $('selector')
     .each()
     .closest()
     .find()
-    .delay()
+    .parent()
+    .children()
+    .html()
+    .text()
+    .attr()
+    .css()
     .addClass()
     .removeClass()
     .show(animateClass) // 可使用css3动画，比如使用 animate.css: .show('animated fadeIn')
     .hide(animateClass)
-    .css()
+    .delay()
     .on() // 使用代理实现，新添加的元素也能处理事件
 
  */
-$ = function(selector) {
+$ = function (selector) {
     if (!(this instanceof $)) {
         var els = new $
         els.selector = selector
@@ -38,16 +38,16 @@ $ = function(selector) {
 }
 $.fn = $.prototype = []
 
-$.fn.delay = function(time) {
+$.fn.delay = function (time) {
     if (String(time).match('s')) {
         time = parseFloat(time) * 1000
     }
     this.delayTime = time + (this.delayTime || 0)
     return this
 }
-$.fn.each = function(cb) {
+$.fn.each = function (cb) {
     var _this = this
-    var deal = function() {
+    var deal = function () {
         for (var i = 0; i < _this.length; i++) {
             cb.call(_this[i], i, _this[i])
         }
@@ -59,13 +59,13 @@ $.fn.each = function(cb) {
 
     return this
 }
-$.fn.closest = function(selector) {
+$.fn.closest = function (selector) {
     var _els = $(selector)
     var els = new $
-    this.each(function() {
+    this.each(function () {
         (function loop(node) {
             if (!node) return
-            if (_els.indexOf(node) != -1) {
+            if (_els.indexOf(node) != -1 && els.indexOf(node) == -1) {
                 els.push(node)
             } else {
                 loop(node.parentNode)
@@ -74,15 +74,15 @@ $.fn.closest = function(selector) {
     })
     return els
 }
-$.fn.find = function(selector) {
+$.fn.find = function (selector) {
     var _els = $(selector)
     var els = new $
-    this.each(function() {
+    this.each(function () {
         (function loop(node) {
-            var childNodes = node.childNodes
-            for (var i = 0; i < childNodes.length; i++) {
-                var node = childNodes[i]
-                if (_els.indexOf(node) != -1) {
+            var children = node.children
+            for (var i = 0; i < children.length; i++) {
+                var node = children[i]
+                if (_els.indexOf(node) != -1 && els.indexOf(node) == -1) {
                     els.push(node)
                 }
                 loop(node)
@@ -91,25 +91,48 @@ $.fn.find = function(selector) {
     })
     return els
 }
-$.fn.addClass = function(className) {
+$.fn.parent = function () {
+    var els = new $
+    this.each(function () {
+        var node = this.parentNode
+        if (els.indexOf(node) == -1) {
+            els.push(node)
+        }
+    })
+    return els
+}
+$.fn.children = function () {
+    var els = new $
+    this.each(function () {
+        var children = this.children
+        for (var i = 0; i < children.length; i++) {
+            var node = children[i]
+            if (els.indexOf(node) == -1) {
+                els.push(node)
+            }
+        }
+    })
+    return els
+}
+$.fn.addClass = function (className) {
     var classNames = className.trim().split(/ +/)
-    return this.each(function() {
+    return this.each(function () {
         var classList = this.classList
         for (var i = 0; i < classNames.length; i++) {
             classList && classList.add(classNames[i])
         }
     })
 }
-$.fn.removeClass = function(className) {
+$.fn.removeClass = function (className) {
     var classNames = className.trim().split(/ +/)
-    return this.each(function() {
+    return this.each(function () {
         var classList = this.classList
         for (var i = 0; i < classNames.length; i++) {
             classList && classList.remove(classNames[i])
         }
     })
 }
-$.fn.css = function(arg, val) {
+$.fn.css = function (arg, val) {
     var item = this[0]
     if (!item) return
 
@@ -120,7 +143,7 @@ $.fn.css = function(arg, val) {
 
     // set
     if (typeof arg == 'object') {
-        return this.each(function() {
+        return this.each(function () {
             var style = this.style
             for (var name in arg) {
                 style['-webkit-' + name] = arg[name]
@@ -145,8 +168,8 @@ $.fn.css = function(arg, val) {
     }
 
 }
-$.fn.show = function(className) {
-    this.each(function() {
+$.fn.show = function (className) {
+    this.each(function () {
         $(this).css('display', '')
         if ($(this).css('display') == 'none') {
             $(this).css('display', 'block')
@@ -159,7 +182,7 @@ $.fn.show = function(className) {
     }
     return this
 }
-$.fn.hide = function(className) {
+$.fn.hide = function (className) {
     if (className) {
         this.addClass(className)
             .delay(this.css('animation-duration'))
@@ -167,9 +190,39 @@ $.fn.hide = function(className) {
     }
     return this.css('display', 'none')
 }
-$.fn.on = function(eventType, cb) {
+$.fn.html = function (value) {
+    if (arguments.length) {
+        this.each(function () {
+            this.innerHTML = value
+        })
+    } else {
+        return this[0] ? this[0].innerHTML : ''
+    }
+    return this
+}
+$.fn.text = function (value) {
+    if (arguments.length) {
+        this.each(function () {
+            this.innerText = value
+        })
+    } else {
+        return this[0] ? this[0].innerText : ''
+    }
+    return this
+}
+$.fn.attr = function (name, value) {
+    if (arguments.length > 1) {
+        this.each(function () {
+            this.setAttribute(name, value)
+        })
+    } else {
+        return this[0] ? this[0].getAttribute(name) : null
+    }
+    return this
+}
+$.fn.on = function (eventType, cb) {
     var _this = this
-    document.addEventListener(eventType, function(e) {
+    document.addEventListener(eventType, function (e) {
         var el = $(e.target).closest(_this.selector)[0]
         if (el) {
             cb.call(el, e)
