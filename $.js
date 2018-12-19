@@ -7,6 +7,9 @@ $('selector')
     .find()
     .parent()
     .children()
+    .append()
+    .appendTo()
+    .remove()
     .html()
     .text()
     .attr()
@@ -15,21 +18,29 @@ $('selector')
     .removeClass()
     .show(animateClass) // 可使用css3动画，比如使用 animate.css: .show('animated fadeIn')
     .hide(animateClass)
-    .delay()
     .on() // 使用代理实现，新添加的元素也能处理事件
 
  */
 !(function () {
 
     var $ = function (selector) {
+        if (selector instanceof $) {
+            return selector
+        }
         if (!(this instanceof $)) {
             var els = new $
             els.selector = selector
 
             if (typeof selector == 'string') {
-                var nodeList = document.querySelectorAll(selector)
-                nodeList = els.slice.call(nodeList)
-                els.splice.apply(els, [0, 0].concat(nodeList))
+                if (selector.match('<')) {
+                    var div = document.createElement('div')
+                    div.innerHTML = selector
+                    return $(div.children[0])
+                } else {
+                    var nodeList = document.querySelectorAll(selector)
+                    nodeList = els.slice.call(nodeList)
+                    els.splice.apply(els, [0, 0].concat(nodeList))
+                }
             }
             if (typeof selector == 'object') {
                 els.push(selector)
@@ -116,6 +127,26 @@ $('selector')
         })
         return els
     }
+    $.fn.append = function (children) {
+        var children = $(children)
+        var node = this[0]
+        if (node) {
+            children.each(function () {
+                node.appendChild(this)
+            })
+        }
+    }
+    $.fn.appendTo = function (parent) {
+        var parent = $(parent)
+        parent.append(this)
+    }
+    $.fn.remove = function () {
+        return this.each(function () {
+            if (this.parentNode) {
+                this.parentNode.removeChild(this)
+            }
+        })
+    }
     $.fn.addClass = function (className) {
         var classNames = className.trim().split(/ +/)
         return this.each(function () {
@@ -151,7 +182,7 @@ $('selector')
                     style['-webkit-' + name] = arg[name]
                     style['-moz-' + name] = arg[name]
                     style['-ms-' + name] = arg[name]
-                    style['-0-' + name] = arg[name]
+                    style['-o-' + name] = arg[name]
                     style[name] = arg[name]
                 }
             })
