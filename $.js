@@ -262,7 +262,7 @@ $('selector')
             if (el) {
                 cb.call(el, e)
             }
-        })
+        }, true)
         return this
     }
 
