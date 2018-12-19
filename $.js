@@ -135,10 +135,12 @@ $('selector')
                 node.appendChild(this)
             })
         }
+        return this
     }
     $.fn.appendTo = function (parent) {
         var parent = $(parent)
         parent.append(this)
+        return this
     }
     $.fn.remove = function () {
         return this.each(function () {
