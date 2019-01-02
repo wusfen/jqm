@@ -3,6 +3,7 @@
 
 $('selector')
     .each()
+    .index()
     .closest()
     .find()
     .parent()
@@ -70,6 +71,16 @@ $('selector')
         delayTime ? setTimeout(deal, delayTime) : deal()
 
         return this
+    }
+    $.fn.index = function (selector) {
+        var index = -1
+        var el =  this[0]
+        this.parent().children().each(function (i, item) {
+            if (this==el) {
+                index = i
+            }
+        })
+        return index
     }
     $.fn.closest = function (selector) {
         var _els = $(selector)
